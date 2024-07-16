@@ -1,17 +1,3 @@
-// Copyright 2018 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package ygot
 
 import (
@@ -623,6 +609,25 @@ func TestFindSetLeaves(t *testing.T) {
 					},
 				}},
 			}: String("baz"),
+		},
+	}, {
+		desc: "struct with presence container",
+		inStruct: &basicStruct{
+			StructValue: &basicStructTwo{},
+		},
+		inOpts: []DiffOpt{
+			&DiffPresenceOpt{
+				ConsiderPresenceContainers: true,
+			},
+		},
+		want: map[*pathSpec]interface{}{
+			{
+				gNMIPaths: []*gnmipb.Path{{
+					Elem: []*gnmipb.PathElem{
+						{Name: "struct-value"},
+					},
+				}},
+			}: &basicStructTwo{},
 		},
 	}}
 
@@ -1551,6 +1556,45 @@ func TestDiff(t *testing.T) {
 						},
 					},
 				},
+			}},
+		},
+	}, {
+		desc: "presence container addition",
+		inOrig: &basicStruct{},
+		inMod: &basicStruct{
+			StructValue: &basicStructTwo{},
+		},
+		inOpts: []DiffOpt{
+			&DiffPresenceOpt{
+				ConsiderPresenceContainers: true,
+			},
+		},
+		want: &gnmipb.Notification{
+			Update: []*gnmipb.Update{{
+				Path: &gnmipb.Path{
+					Elem: []*gnmipb.PathElem{{
+						Name: "struct-value",
+					}},
+				},
+				Val: &gnmipb.TypedValue{Value: &gnmipb.TypedValue_BytesVal{}},
+			}},
+		},
+	}, {
+		desc: "presence container deletion",
+		inOrig: &basicStruct{
+			StructValue: &basicStructTwo{},
+		},
+		inMod: &basicStruct{},
+		inOpts: []DiffOpt{
+			&DiffPresenceOpt{
+				ConsiderPresenceContainers: true,
+			},
+		},
+		want: &gnmipb.Notification{
+			Delete: []*gnmipb.Path{{
+				Elem: []*gnmipb.PathElem{{
+					Name: "struct-value",
+				}},
 			}},
 		},
 	}}

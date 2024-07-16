@@ -1,17 +1,3 @@
-// Copyright 2018 Google Inc.
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//      http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 package ygot
 
 import (
@@ -334,6 +320,13 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 			}
 		}
 
+		 // Check for presence containers
+        if util.IsPresenceContainer(ni.StructField) {
+            outs := out.(map[*pathSpec]interface{})
+            outs[vp] = ival
+            return
+        }
+
 		outs := out.(map[*pathSpec]interface{})
 		outs[vp] = ival
 
@@ -450,6 +443,15 @@ type DiffPathOpt struct {
 
 // IsDiffOpt marks DiffPathOpt as a diff option.
 func (*DiffPathOpt) IsDiffOpt() {}
+
+// DiffPresenceOpt is a DiffOpt that allows control of whether presence containers
+// are considered in the diff.
+type DiffPresenceOpt struct {
+	ConsiderPresenceContainers bool
+}
+
+// IsDiffOpt marks DiffPresenceOpt as a diff option.
+func (*DiffPresenceOpt) IsDiffOpt() {}
 
 // Diff takes an original and modified GoStruct, which must be of the same type
 // and returns a gNMI Notification that contains the diff between them. The original
