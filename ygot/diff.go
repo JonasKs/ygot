@@ -240,6 +240,7 @@ func toStringPathMap(pathMap map[*pathSpec]interface{}) (map[string]*pathInfo, e
 // interface) will be treated as a leaf and will be returned as-is instead of
 // being walked and its leaves populated.
 func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pathSpec]interface{}, error) {
+	fmt.Println("helo terje")
 	pathOpt := hasDiffPathOpt(opts)
 	processedPaths := map[string]bool{}
 
@@ -253,6 +254,8 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 		if util.IsYgotAnnotation(ni.StructField) {
 			return
 		}
+
+		isYangPresence := util.IsYangPresence(ni.StructField)
 
 		var sp [][]string
 		if pathOpt != nil && pathOpt.PreferShadowPath {
@@ -313,7 +316,7 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 		// Ignore structs unless it is an ordered map and we're
 		// treating it as a leaf (since it is assumed to be
 		// telemetry-atomic in order to preserve ordering of entries).
-		if (!isOrderedMap || !orderedMapAsLeaf) && util.IsValueStructPtr(ni.FieldValue) {
+		if (!isOrderedMap || !orderedMapAsLeaf) && util.IsValueStructPtr(ni.FieldValue) && !isYangPresence {
 			return
 		}
 		if isOrderedMap && orderedMap.Len() == 0 {
