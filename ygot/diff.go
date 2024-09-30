@@ -316,8 +316,10 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 		// Ignore structs unless it is an ordered map and we're
 		// treating it as a leaf (since it is assumed to be
 		// telemetry-atomic in order to preserve ordering of entries).
-		if (!isOrderedMap || !orderedMapAsLeaf) && util.IsValueStructPtr(ni.FieldValue) && !isYangPresence {
-			return
+		if (!isOrderedMap || !orderedMapAsLeaf) && util.IsValueStructPtr(ni.FieldValue) {
+			if !isYangPresence {
+				return
+			}
 		}
 		if isOrderedMap && orderedMap.Len() == 0 {
 			return

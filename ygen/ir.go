@@ -378,7 +378,8 @@ func (ir *IR) SchemaTree(inclDescriptions bool) ([]byte, error) {
 // in the generated code. It represents a YANG 'container' or 'list'.
 type ParsedDirectory struct {
 	// Name is the candidate language-specific name of the directory.
-	Name string
+	Name              string
+	PresenceContainer bool
 	// Type describes the type of directory that is being produced -
 	// such that YANG 'list' entries can have special handling.
 	Type DirType
