@@ -378,8 +378,7 @@ func (ir *IR) SchemaTree(inclDescriptions bool) ([]byte, error) {
 // in the generated code. It represents a YANG 'container' or 'list'.
 type ParsedDirectory struct {
 	// Name is the candidate language-specific name of the directory.
-	Name              string
-	PresenceContainer bool
+	Name string
 	// Type describes the type of directory that is being produced -
 	// such that YANG 'list' entries can have special handling.
 	Type DirType
@@ -469,6 +468,8 @@ type ParsedDirectory struct {
 	//
 	// https://github.com/openconfig/public/blob/master/release/models/openconfig-extensions.yang#L154
 	CompressedTelemetryAtomic bool
+	// PresenceContainer indicates that this container is a YANG presence container
+    PresenceContainer bool
 }
 
 // OrderedFieldNames returns the YANG name of all fields belonging to the

@@ -22,8 +22,8 @@ import (
 // PresenceContainer is an interface which can be implemented by Go structs that are
 // generated to represent a YANG presence container.
 type PresenceContainer interface {
-	// IsYANGGoStruct is a marker method that indicates that the struct
-	// implements the GoStruct interface.
+	// IsPresence is a marker method that indicates that the struct
+	// implements the PresenceContainer interface.
 	IsPresence()
 }
 

@@ -337,6 +337,11 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 				return
 			}
 		}
+
+	    // If the current field is tagged as a presence container,
+	    // we set it's value to `nil` instead of returning earlier.
+	    // This is because empty presence containers has a meaning,
+	    // unlike a normal container.
 		if isYangPresence {
 			outs := out.(map[*pathSpec]interface{})
 			outs[vp] = nil
@@ -669,9 +674,6 @@ func diff(original, modified GoStruct, withAtomic bool, opts ...DiffOpt) ([]*gnm
 		return nil, fmt.Errorf("could not extract set leaves from original struct: %v", err)
 	}
 
-	// TODO: start her
-	// kan vi markere presence containers som tomme, dersom det er en presence container?
-	// slik at deepEqual blir lik mellom dem? Eller fucker det annet?
 	modLeaves, err := findSetLeaves(modified, withAtomic, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("could not extract set leaves from modified struct: %v", err)
@@ -698,11 +700,6 @@ func diff(original, modified GoStruct, withAtomic bool, opts ...DiffOpt) ([]*gnm
 			}
 			atomicNotifs = append(atomicNotifs, notif)
 		} else {
-			// } else if .presenceContainer {
-			// 	// da vet vi:
-			// 	// - den finnes i original og i modified
-			// 	// - da vet vi at det er OK
-			// } else {
 			// The contents of the value should indicate that value a has changed
 			// to value b.
 			if err := appendUpdate(n, path, modVal); err != nil {
