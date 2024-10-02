@@ -240,7 +240,6 @@ func toStringPathMap(pathMap map[*pathSpec]interface{}) (map[string]*pathInfo, e
 // interface) will be treated as a leaf and will be returned as-is instead of
 // being walked and its leaves populated.
 func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pathSpec]interface{}, error) {
-	fmt.Println("helo terje")
 	pathOpt := hasDiffPathOpt(opts)
 	processedPaths := map[string]bool{}
 
@@ -338,10 +337,13 @@ func findSetLeaves(s GoStruct, orderedMapAsLeaf bool, opts ...DiffOpt) (map[*pat
 				return
 			}
 		}
-
-		outs := out.(map[*pathSpec]interface{})
-		outs[vp] = ival
-
+		if isYangPresence {
+			outs := out.(map[*pathSpec]interface{})
+			outs[vp] = nil
+		} else {
+			outs := out.(map[*pathSpec]interface{})
+			outs[vp] = ival
+		}
 		if isOrderedMap && orderedMapAsLeaf {
 			// We treat the ordered map as a leaf, so don't
 			// traverse any descendant elements.
@@ -667,6 +669,9 @@ func diff(original, modified GoStruct, withAtomic bool, opts ...DiffOpt) ([]*gnm
 		return nil, fmt.Errorf("could not extract set leaves from original struct: %v", err)
 	}
 
+	// TODO: start her
+	// kan vi markere presence containers som tomme, dersom det er en presence container?
+	// slik at deepEqual blir lik mellom dem? Eller fucker det annet?
 	modLeaves, err := findSetLeaves(modified, withAtomic, opts...)
 	if err != nil {
 		return nil, fmt.Errorf("could not extract set leaves from modified struct: %v", err)
@@ -693,6 +698,11 @@ func diff(original, modified GoStruct, withAtomic bool, opts ...DiffOpt) ([]*gnm
 			}
 			atomicNotifs = append(atomicNotifs, notif)
 		} else {
+			// } else if .presenceContainer {
+			// 	// da vet vi:
+			// 	// - den finnes i original og i modified
+			// 	// - da vet vi at det er OK
+			// } else {
 			// The contents of the value should indicate that value a has changed
 			// to value b.
 			if err := appendUpdate(n, path, modVal); err != nil {

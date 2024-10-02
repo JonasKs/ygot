@@ -912,36 +912,13 @@ func EncodeTypedValue(val any, enc gnmipb.Encoding, opts ...EncodeTypedValueOpt)
 	return value.FromScalar(vv.Interface())
 }
 
-func IsEmptyStruct(s interface{}) bool {
-	v := reflect.ValueOf(s)
-
-	// Check if the input is a pointer and dereference it
-	if v.Kind() == reflect.Ptr {
-		v = v.Elem()
-	}
-
-	// Ensure the input is a struct
-	if v.Kind() != reflect.Struct {
-		return false
-	}
-
-	// Check if all fields are the zero value for their types
-	for i := 0; i < v.NumField(); i++ {
-		field := v.Field(i)
-		if !field.IsZero() {
-			return false
-		}
-	}
-	return true
-}
-
 // marshalStructOrOrderedList encodes the struct/ordered list s according to
 // the encoding specified by enc. It is returned as a TypedValue gNMI message.
 func marshalStructOrOrderedList(s any, enc gnmipb.Encoding, cfg *RFC7951JSONConfig) (*gnmipb.TypedValue, error) {
 	if reflect.ValueOf(s).IsNil() {
 		return nil, nil
 	}
-	if IsEmptyStruct(s) {
+	if _, ok := s.(PresenceContainer); ok {
 		return nil, nil
 	}
 

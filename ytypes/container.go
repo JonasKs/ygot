@@ -114,14 +114,19 @@ func validateContainer(schema *yang.Entry, value ygot.GoStruct) util.Errors {
 // - opts is the set of options that should be used when unmarshalling the JSON
 // into the supplied parent.
 func unmarshalContainer(schema *yang.Entry, parent interface{}, jsonTree interface{}, enc Encoding, opts ...UnmarshalOpt) error {
+	// isPresenceContainer := len(schema.Extra["presence"]) > 0
+
+	// if isPresenceContainer {
+	// 	util.DbgPrint("Presence container detected for schema %s", schema.Name)
+	// } else {
+	// 	if util.IsValueNil(jsonTree) {
+	// 		return nil
+	// 	}
+	// }
 	if util.IsValueNil(jsonTree) {
 		return nil
 	}
-
-	// Check that the schema itself is valid.
-	if err := validateContainerSchema(schema); err != nil {
-		return err
-	}
+	// }
 
 	util.DbgPrint("unmarshalContainer jsonTree %v, type %T, into parent type %T, schema name %s", util.ValueStrDebug(jsonTree), jsonTree, parent, schema.Name)
 
@@ -136,7 +141,6 @@ func unmarshalContainer(schema *yang.Entry, parent interface{}, jsonTree interfa
 	if !util.IsValueStructPtr(pvp) {
 		return fmt.Errorf("unmarshalContainer got parent type %T, expect struct ptr", parent)
 	}
-
 	return unmarshalStruct(schema, parent, jt, enc, opts...)
 }
 
